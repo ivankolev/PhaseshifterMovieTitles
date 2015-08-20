@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.*;
+import android.widget.ImageView;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -54,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            ImageView image = (ImageView) rootView.findViewById(R.id.imageView);
+            image.setImageResource(R.drawable.hive_mind_by_pforbinesque);
+            //Picasso.with(image.getContext()).load("http://i.imgur.com/DvpvklR.png").into(image);
+
             return rootView;
         }
     }
