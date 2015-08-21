@@ -3,8 +3,15 @@ package com.phaseshiftlab.phaseshiftermovietitles.first;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.*;
 import android.widget.ImageView;
+import com.squareup.picasso.Picasso;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -55,9 +62,39 @@ public class MainActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            ImageView image = (ImageView) rootView.findViewById(R.id.imageView);
-            image.setImageResource(R.drawable.hive_mind_by_pforbinesque);
-            //Picasso.with(image.getContext()).load("http://i.imgur.com/DvpvklR.png").into(image);
+            final ImageView image = (ImageView) rootView.findViewById(R.id.imageView2);
+            //image.setImageResource(R.drawable.hive_mind_by_pforbinesque);
+
+            String API_URL = "https://developer.github.com/v3/";
+
+            // Create a very simple REST adapter which points the GitHub API endpoint.
+            TheMovieDbService client = ServiceGenerator.createService(TheMovieDbService.class, API_URL);
+
+            // Fetch and print a list of the contributors to this library.
+            client.contributors("fs_opensource", "android-boilerplate", new Callback<List<MovieInfo>>() {
+                @Override
+                public void success(List<MovieInfo> contributers, Response response) {
+                    // here you do stuff with returned tasks
+                    Log.d("RETURN", contributers.toString());
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("RETURN", error.toString());
+                }
+            });
+
+
+
+
+            Picasso
+                    .with(image.getContext())
+                    .load("http://i.imgur.com/DvpvklR.png")
+//                    .placeholder(R.drawable.abc_item_background_holo_light)   //TODO change to proper placeholder and error images
+//                    .error(R.drawable.abc_btn_default_mtrl_shape)
+//                    .fit()
+//                    .centerInside()
+                    .into(image);
 
             return rootView;
         }
