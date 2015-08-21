@@ -1,8 +1,4 @@
 /.idea
-/gradlew.bat
-/gradlew
-/gradle
-.gradle
 /local.properties
 /*.iml
 /gradle.properties
