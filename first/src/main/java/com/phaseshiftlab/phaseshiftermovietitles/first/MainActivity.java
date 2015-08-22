@@ -1,5 +1,6 @@
 package com.phaseshiftlab.phaseshiftermovietitles.first;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -10,8 +11,6 @@ import com.squareup.picasso.Picasso;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-
-import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -55,27 +54,32 @@ public class MainActivity extends AppCompatActivity {
      */
     public static class PlaceholderFragment extends Fragment {
 
+        private String BASE_URL;
+        private String API_KEY;
+        private MovieInfoResponse movieInfo;
+
         public PlaceholderFragment() {
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             final ImageView image = (ImageView) rootView.findViewById(R.id.imageView2);
-            //image.setImageResource(R.drawable.hive_mind_by_pforbinesque);
 
-            String API_URL = "https://developer.github.com/v3/";
+            initValues(rootView.getContext().getResources());
 
             // Create a very simple REST adapter which points the GitHub API endpoint.
-            TheMovieDbService client = ServiceGenerator.createService(TheMovieDbService.class, API_URL);
+            TheMovieDbService client = ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL);
 
             // Fetch and print a list of the contributors to this library.
-            client.contributors("fs_opensource", "android-boilerplate", new Callback<List<MovieInfo>>() {
+            client.discover("popularity.desc", this.API_KEY, new Callback<MovieInfoResponse>() {
                 @Override
-                public void success(List<MovieInfo> contributers, Response response) {
+                public void success(MovieInfoResponse movieInfoResponse, Response response) {
                     // here you do stuff with returned tasks
-                    Log.d("RETURN", contributers.toString());
+                    movieInfo = movieInfoResponse;
+                    Log.d("RETURN", movieInfoResponse.toString());
                 }
 
                 @Override
@@ -83,8 +87,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("RETURN", error.toString());
                 }
             });
-
-
 
 
             Picasso
@@ -97,6 +99,12 @@ public class MainActivity extends AppCompatActivity {
                     .into(image);
 
             return rootView;
+        }
+
+        private void initValues(Resources resources){
+            this.BASE_URL = resources.getString(R.string.base_url);
+            this.API_KEY = resources.getString(R.string.tmdb_api_key);
+
         }
     }
 }

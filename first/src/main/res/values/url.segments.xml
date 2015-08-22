@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="base_url">http://api.themoviedb.org/3/discover/movie</string>
+    <string name="base_url">http://api.themoviedb.org/3</string>
 </resources>

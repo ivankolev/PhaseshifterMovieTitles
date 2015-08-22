@@ -2,11 +2,9 @@ package com.phaseshiftlab.phaseshiftermovietitles.first;
 
 import retrofit.Callback;
 import retrofit.http.GET;
-import retrofit.http.Path;
-
-import java.util.List;
+import retrofit.http.Query;
 
 public interface TheMovieDbService {
-    @GET("/repos/{owner}/{repo}/contributors")
-    void contributors(@Path("owner") String owner, @Path("repo") String repo, Callback<List<MovieInfo>> cb);
+    @GET("/discover/movie")
+    void discover(@Query("sort_by") String sortParam, @Query("api_key") String apiKey, Callback<MovieInfoResponse> cb);
 }
