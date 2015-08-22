@@ -4,3 +4,6 @@
 /gradle.properties
 .DS_Store
 /build
+/gradle
+/gradlew.bat
+/gradlew
