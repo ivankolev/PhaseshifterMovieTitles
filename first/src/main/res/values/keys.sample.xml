@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--Rename this file from keys.sample to keys and include the API key provided by when you register to TMDB-->
-<resources>
-    <resources>
-        <string name="tmdb_api_key">TMDB_API_KEY</string>
-    </resources>
-</resources>
