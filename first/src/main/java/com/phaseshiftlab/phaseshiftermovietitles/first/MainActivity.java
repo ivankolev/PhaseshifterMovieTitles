@@ -1,13 +1,16 @@
 package com.phaseshiftlab.phaseshiftermovietitles.first;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.*;
 import android.widget.ImageView;
-import com.squareup.picasso.Picasso;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -69,9 +72,25 @@ public class MainActivity extends AppCompatActivity {
             final ImageView image = (ImageView) rootView.findViewById(R.id.imageView2);
 
             initValues(rootView.getContext().getResources());
+            final RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.rv);
 
-            // Create a very simple REST adapter which points the GitHub API endpoint.
-            TheMovieDbService client = ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL);
+            rv.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+            rv.setItemAnimator(new DefaultItemAnimator());
+
+
+            fetchMovieData(rv, rootView.getContext());
+
+            return rootView;
+        }
+
+        private void initValues(Resources resources){
+            this.BASE_URL = resources.getString(R.string.base_url);
+            this.API_KEY = resources.getString(R.string.tmdb_api_key);
+        }
+
+        private void fetchMovieData(final RecyclerView rv, Context ctx){
+            Boolean fetchLocal = true;
+            TheMovieDbService client = ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL, fetchLocal, ctx);
 
             // Fetch and print a list of the contributors to this library.
             client.discover("popularity.desc", this.API_KEY, new Callback<MovieInfoResponse>() {
@@ -79,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
                 public void success(MovieInfoResponse movieInfoResponse, Response response) {
                     // here you do stuff with returned tasks
                     movieInfo = movieInfoResponse;
+                    rv.setAdapter(new MovieInfoAdapter(movieInfo.results));
+
                     Log.d("RETURN", movieInfoResponse.toString());
                 }
 
@@ -87,24 +108,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("RETURN", error.toString());
                 }
             });
-
-
-            Picasso
-                    .with(image.getContext())
-                    .load("http://i.imgur.com/DvpvklR.png")
-//                    .placeholder(R.drawable.abc_item_background_holo_light)   //TODO change to proper placeholder and error images
-//                    .error(R.drawable.abc_btn_default_mtrl_shape)
-//                    .fit()
-//                    .centerInside()
-                    .into(image);
-
-            return rootView;
-        }
-
-        private void initValues(Resources resources){
-            this.BASE_URL = resources.getString(R.string.base_url);
-            this.API_KEY = resources.getString(R.string.tmdb_api_key);
-
         }
     }
 }
+
