@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="base_url">http://api.themoviedb.org/3</string>
+    <string name="image_url">http://image/tmdb.org/t/p</string>
+    <string name="width_92">w92</string>
+    <string name="width_154">w154</string>
+    <string name="width_185">w185</string>
+    <string name="width_342">w342</string>
+    <string name="width_500">w500</string>
+    <string name="width_780">w780</string>
+    <string name="width_original">original</string>
 </resources>
