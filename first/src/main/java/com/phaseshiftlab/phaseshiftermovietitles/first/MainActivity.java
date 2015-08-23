@@ -10,7 +10,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.*;
-import android.widget.ImageView;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -69,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
 
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            final ImageView image = (ImageView) rootView.findViewById(R.id.imageView2);
 
             initValues(rootView.getContext().getResources());
             final RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.rv);
