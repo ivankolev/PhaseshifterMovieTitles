@@ -29,7 +29,7 @@ public class MovieItemDetail extends AppCompatActivity {
         ImageView moviePosterThumb = (ImageView)findViewById(R.id.moviePosterThumb);
         Context context = moviePosterThumb.getContext();
         String path = context.getResources().getString(R.string.image_url) + "/" +
-                context.getResources().getString(R.string.width_185) + "/" +
+                context.getResources().getString(R.string.width_342) + "/" +
                 movieInfo.poster_path;
         Picasso.with(context)
                 .load(path)

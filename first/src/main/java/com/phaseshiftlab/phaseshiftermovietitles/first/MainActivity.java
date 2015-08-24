@@ -11,22 +11,39 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.*;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
+import static android.widget.Toast.makeText;
+
 
 public class MainActivity extends AppCompatActivity {
 
+    Fragment mainFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
+            mainFragment = new PlaceholderFragment();
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, mainFragment)
                     .commit();
+        } else {
+            mainFragment = getFragmentManager().getFragment(
+                    savedInstanceState, "mainFragment");
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Save the fragment's instance
+        getFragmentManager().putFragment(outState, "mainFragment", mainFragment);
     }
 
 
@@ -83,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
         public PlaceholderFragment() {
         }
 
-
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
@@ -98,18 +114,39 @@ public class MainActivity extends AppCompatActivity {
             rv.setLayoutManager(new GridLayoutManager(getActivity(), 3));
             rv.setItemAnimator(new DefaultItemAnimator());
 
-
-            fetchMovieData(rv, rootView.getContext());
+            if(savedInstanceState == null){
+                fetchMovieData(rv, rootView.getContext());
+            }
 
             return rootView;
         }
 
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+
+            RecyclerView rv = (RecyclerView) getActivity().findViewById(R.id.rv);
+            if (savedInstanceState != null) {
+                //Restore the fragment's state here
+                movieInfo = savedInstanceState.getParcelable("movieInfo");
+                rv.setAdapter(new MovieInfoAdapter(movieInfo.results));
+            }
+        }
+
+        @Override
+        public void onSaveInstanceState(Bundle outState) {
+            super.onSaveInstanceState(outState);
+            //Save the fragment's state here
+            outState.putParcelable("movieInfo", movieInfo);
+
+
+        }
         private void initValues(Resources resources){
             this.BASE_URL = resources.getString(R.string.base_url);
             this.API_KEY = resources.getString(R.string.tmdb_api_key);
         }
 
-        private void fetchMovieData(final RecyclerView rv, Context ctx){
+        private void fetchMovieData(final RecyclerView rv, final Context ctx){
             TheMovieDbService client = ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL, this.FETCH_LOCAL, ctx);
 
             // Fetch and print a list of the contributors to this library.
@@ -119,13 +156,11 @@ public class MainActivity extends AppCompatActivity {
                     // here you do stuff with returned tasks
                     movieInfo = movieInfoResponse;
                     rv.setAdapter(new MovieInfoAdapter(movieInfo.results));
-
-                    Log.d("RETURN", movieInfoResponse.toString());
                 }
 
                 @Override
                 public void failure(RetrofitError error) {
-                    Log.d("RETURN", error.toString());
+                    makeText(ctx, ctx.getResources().getString(R.string.retrofit_error_message), Toast.LENGTH_SHORT).show();
                 }
             });
         }

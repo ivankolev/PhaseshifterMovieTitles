@@ -7,5 +7,6 @@
     <string name="title_activity_movie_item_detail">MovieItemDetail</string>
     <string name="rating">"Rating: "</string>
     <string name="release_date">"Release Date: "</string>
+    <string name="retrofit_error_message">Error fetching data</string>
 
 </resources>
