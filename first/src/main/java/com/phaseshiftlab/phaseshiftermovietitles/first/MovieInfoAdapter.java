@@ -32,17 +32,6 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.View
         }
     }
 
-    public void add(int position, MovieInfo item) {
-        mDataset.add(position, item);
-        notifyItemInserted(position);
-    }
-
-    public void remove(MovieInfo item) {
-        int position = mDataset.indexOf(item);
-        mDataset.remove(position);
-        notifyItemRemoved(position);
-    }
-
     // Provide a suitable constructor (depends on the kind of dataset)
     public MovieInfoAdapter(List<MovieInfo> myDataset) {
         mDataset = myDataset;
