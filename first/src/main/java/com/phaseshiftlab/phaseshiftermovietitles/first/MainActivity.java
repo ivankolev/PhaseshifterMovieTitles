@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private void fetchMovieData(final RecyclerView rv, final Context ctx){
-            TheMovieDbService client = ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL, this.FETCH_LOCAL, ctx);
+            TheMovieDbService client = ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL, FETCH_LOCAL, ctx);
 
             // Fetch and print a list of the contributors to this library.
             client.discover(this.sortBy, this.API_KEY, new Callback<MovieInfoResponse>() {
