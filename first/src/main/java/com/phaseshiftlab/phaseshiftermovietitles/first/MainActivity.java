@@ -9,10 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.*;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -91,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public static class PlaceholderFragment extends Fragment {
 
-        private static final Boolean FETCH_LOCAL = false;
+        private final Boolean FETCH_LOCAL = false;
         private String BASE_URL;
         private String API_KEY;
         private String sortBy;
