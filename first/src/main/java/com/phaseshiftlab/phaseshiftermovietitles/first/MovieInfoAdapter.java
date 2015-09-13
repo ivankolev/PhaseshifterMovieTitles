@@ -32,9 +32,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.View
         }
     }
 
-    // Provide a suitable constructor (depends on the kind of dataset)
-    public MovieInfoAdapter(List<MovieInfo> myDataset) {
-        mDataset = myDataset;
+    public MovieInfoAdapter() {
     }
 
     // Create new views (invoked by the layout manager)
@@ -55,12 +53,11 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.View
         final MovieInfo movieInfo = mDataset.get(position);
         Context context = holder.imageView.getContext();
         String path = context.getResources().getString(R.string.image_url) + "/" +
-                context.getResources().getString(R.string.width_185) + "/" +
+                context.getResources().getString(R.string.width_342) + "/" +
                 movieInfo.poster_path;
         Picasso.with(context)
                 .load(path)
                 .fit()
-                .centerInside()
                 .into(holder.imageView);
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,6 +74,16 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.View
     @Override
     public int getItemCount() {
         return mDataset.size();
+    }
+
+    public void appendItems(List<MovieInfo> items) {
+        if(mDataset != null){
+            mDataset.addAll(items);
+        }  else {
+            mDataset = items;
+        }
+        int count = getItemCount();
+        notifyItemRangeInserted(count, items.size());
     }
 
 }

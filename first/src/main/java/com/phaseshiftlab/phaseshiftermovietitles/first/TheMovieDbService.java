@@ -6,5 +6,5 @@ import retrofit.http.Query;
 
 public interface TheMovieDbService {
     @GET("/discover/movie")
-    void discover(@Query("sort_by") String sortParam, @Query("api_key") String apiKey, Callback<MovieInfoResponse> cb);
+    void discover(@Query("sort_by") String sortParam, @Query("api_key") String apiKey, @Query("page") Integer page, Callback<MovieInfoResponse> cb);
 }

@@ -1,8 +1,15 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat">
-        <!-- Customize your theme here. -->
+    <style name="Theme.AppTheme" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:windowBackground">@color/background_color</item>
     </style>
 
+    <color name="primary">#607D8B</color>
+    <color name="primary_dark">#37474F</color>
+    <color name="accent">#CFD8DC</color>
+    <color name="background_color">#90A4AE</color>
 </resources>
