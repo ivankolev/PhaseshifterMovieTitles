@@ -5,12 +5,24 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import com.squareup.picasso.Picasso;
 
+import static android.widget.Toast.makeText;
 
-public class MovieItemDetail extends AppCompatActivity {
+
+public class MovieItemDetailActivity extends AppCompatActivity {
+
+    @Bind(R.id.originalTitle) TextView originalTitle;
+    @Bind(R.id.moviePosterThumb) ImageView moviePosterThumb;
+    @Bind(R.id.plotSynopsis) TextView plotSynopsis;
+    @Bind(R.id.userRating) TextView userRating;
+    @Bind(R.id.releaseDate) TextView releaseDate;
 
     private static final String MOVIE_PARCEL = "com.phaseshiftlab.phaseshiftermovietitles.first.MovieInfo";
 
@@ -19,14 +31,13 @@ public class MovieItemDetail extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_item_detail);
         MovieInfo movieInfo = getIntent().getExtras().getParcelable(MOVIE_PARCEL);
+        ButterKnife.bind(this);
         populateViews(movieInfo);
     }
 
     private void populateViews(MovieInfo movieInfo) {
-        TextView originalTitle = (TextView)findViewById(R.id.originalTitle);
         originalTitle.setText(movieInfo.original_title);
 
-        ImageView moviePosterThumb = (ImageView)findViewById(R.id.moviePosterThumb);
         Context context = moviePosterThumb.getContext();
         String path = context.getResources().getString(R.string.image_url) + "/" +
                 context.getResources().getString(R.string.width_342) + "/" +
@@ -35,13 +46,8 @@ public class MovieItemDetail extends AppCompatActivity {
                 .load(path)
                 .into(moviePosterThumb);
 
-        TextView plotSynopsis = (TextView)findViewById(R.id.plotSynopsis);
         plotSynopsis.setText(movieInfo.overview);
-
-        TextView userRating = (TextView)findViewById(R.id.userRating);
         userRating.setText(context.getResources().getString(R.string.rating) + movieInfo.vote_average.toString());
-
-        TextView releaseDate = (TextView)findViewById(R.id.releaseDate);
         releaseDate.setText(context.getResources().getString(R.string.release_date) + movieInfo.release_date);
     }
 
@@ -60,5 +66,10 @@ public class MovieItemDetail extends AppCompatActivity {
         int id = item.getItemId();
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void toggleFavorite(View view) {
+        makeText(view.getContext(), view.getContext().getResources().getString(R.string.toggle_add_to_fav), Toast.LENGTH_SHORT).show();
+
     }
 }
