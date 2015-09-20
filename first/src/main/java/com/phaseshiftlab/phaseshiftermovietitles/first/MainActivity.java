@@ -22,7 +22,6 @@ import static android.widget.Toast.makeText;
 public class MainActivity extends AppCompatActivity {
 
     Fragment mainFragment;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,8 +35,6 @@ public class MainActivity extends AppCompatActivity {
             mainFragment = getFragmentManager().getFragment(
                     savedInstanceState, "mainFragment");
         }
-
-        ViewServer.get(this).addWindow(this);
     }
 
     @Override
@@ -74,19 +71,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        ViewServer.get(this).removeWindow(this);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        ViewServer.get(this).setFocusedWindow(this);
-    }
-
-    private void sortMovies(Fragment fragment, String sortBy) {
+    private void sortMovies(Fragment fragment, String sortBy){
 
         // Supply index input as an argument.
         Bundle args = new Bundle();
@@ -111,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
         private MovieInfoResponse movieInfo;
         private MovieInfoAdapter movieInfoAdapter = new MovieInfoAdapter();
         private EndlessRecyclerViewAdapter recyclerViewAdapter;
-
         public PlaceholderFragment() {
         }
 
@@ -131,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
             recyclerViewAdapter = createRecyclerViewAdapter(rv, rv.getContext(), movieInfoAdapter);
 
-            if (savedInstanceState == null) {
+            if(savedInstanceState == null){
                 fetchMovieData(rv, rootView.getContext());
             }
 
@@ -158,22 +142,21 @@ public class MainActivity extends AppCompatActivity {
             //Save the fragment's state here
             outState.putParcelable("movieInfo", movieInfo);
         }
-
-        private void initValues(Resources resources) {
+        private void initValues(Resources resources){
             this.BASE_URL = resources.getString(R.string.base_url);
             this.API_KEY = resources.getString(R.string.tmdb_api_key);
         }
 
-        private EndlessRecyclerViewAdapter createRecyclerViewAdapter(final RecyclerView rv, final Context ctx, MovieInfoAdapter movieInfoAdapter) {
-            return new EndlessRecyclerViewAdapter(ctx, movieInfoAdapter, new EndlessRecyclerViewAdapter.RequestToLoadMoreListener() {
-                @Override
-                public void onLoadMoreRequested() {
-                    fetchMovieData(rv, ctx);
-                }
-            });
+        private EndlessRecyclerViewAdapter createRecyclerViewAdapter(final RecyclerView rv, final Context ctx, MovieInfoAdapter movieInfoAdapter){
+              return new EndlessRecyclerViewAdapter(ctx, movieInfoAdapter, new EndlessRecyclerViewAdapter.RequestToLoadMoreListener() {
+                  @Override
+                  public void onLoadMoreRequested() {
+                      fetchMovieData(rv, ctx);
+                  }
+              });
         }
 
-        private void fetchMovieData(final RecyclerView rv, final Context ctx) {
+        private void fetchMovieData(final RecyclerView rv, final Context ctx){
             TheMovieDbService client = ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL, FETCH_LOCAL, ctx);
             client.discover(this.sortBy, this.API_KEY, getPage(), new Callback<MovieInfoResponse>() {
                 @Override
@@ -193,11 +176,12 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        private int getPage() {
-            if (movieInfo == null) {
+        private int getPage(){
+            if(movieInfo == null){
                 return 1;
-            } else {
-                return movieInfoAdapter.getItemCount() / 20 + 1;
+            }
+            else {
+                return movieInfoAdapter.getItemCount()/20 + 1;
             }
         }
     }
