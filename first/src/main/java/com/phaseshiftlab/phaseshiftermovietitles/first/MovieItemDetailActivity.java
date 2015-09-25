@@ -1,54 +1,29 @@
 package com.phaseshiftlab.phaseshiftermovietitles.first;
 
-import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import com.squareup.picasso.Picasso;
 
 import static android.widget.Toast.makeText;
 
 
-public class MovieItemDetailActivity extends AppCompatActivity {
-
-    @Bind(R.id.originalTitle) TextView originalTitle;
-    @Bind(R.id.moviePosterThumb) ImageView moviePosterThumb;
-    @Bind(R.id.plotSynopsis) TextView plotSynopsis;
-    @Bind(R.id.userRating) TextView userRating;
-    @Bind(R.id.releaseDate) TextView releaseDate;
-
-    private static final String MOVIE_PARCEL = "com.phaseshiftlab.phaseshiftermovietitles.first.MovieInfo";
+public class MovieItemDetailActivity extends AppCompatActivity implements MovieDetailsFragment.OnFragmentInteractionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_item_detail);
-        MovieInfo movieInfo = getIntent().getExtras().getParcelable(MOVIE_PARCEL);
-        ButterKnife.bind(this);
-        populateViews(movieInfo);
-    }
 
-    private void populateViews(MovieInfo movieInfo) {
-        originalTitle.setText(movieInfo.original_title);
-
-        Context context = moviePosterThumb.getContext();
-        String path = context.getResources().getString(R.string.image_url) + "/" +
-                context.getResources().getString(R.string.width_342) + "/" +
-                movieInfo.poster_path;
-        Picasso.with(context)
-                .load(path)
-                .into(moviePosterThumb);
-
-        plotSynopsis.setText(movieInfo.overview);
-        userRating.setText(context.getResources().getString(R.string.rating) + movieInfo.vote_average.toString());
-        releaseDate.setText(context.getResources().getString(R.string.release_date) + movieInfo.release_date);
+        if (savedInstanceState == null) {
+            getFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.movie_detail_container, new MovieDetailsFragment())
+                    .commit();
+        }
     }
 
 
@@ -70,6 +45,11 @@ public class MovieItemDetailActivity extends AppCompatActivity {
 
     public void toggleFavorite(View view) {
         makeText(view.getContext(), view.getContext().getResources().getString(R.string.toggle_add_to_fav), Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
 
     }
 }

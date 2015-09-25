@@ -73,7 +73,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.View
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mDataset.size();
+        return mDataset != null ? mDataset.size() : 0;
     }
 
     public void appendItems(List<MovieInfo> items) {
@@ -84,6 +84,11 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.View
         }
         int count = getItemCount();
         notifyItemRangeInserted(count, items.size());
+    }
+
+    public void clear(){
+        mDataset.clear();
+        mDataset = null;
     }
 
 }

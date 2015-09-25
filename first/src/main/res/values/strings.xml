@@ -10,4 +10,7 @@
     <string name="movie_poster">Movie Poster</string>
     <string name="add_remove_fav">Add to Favorites</string>
     <string name="toggle_add_to_fav">Toggled Favorite</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

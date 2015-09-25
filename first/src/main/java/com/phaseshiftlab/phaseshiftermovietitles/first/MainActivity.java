@@ -1,9 +1,9 @@
 package com.phaseshiftlab.phaseshiftermovietitles.first;
 
 import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -19,75 +19,70 @@ import retrofit.client.Response;
 import static android.widget.Toast.makeText;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MovieDetailsFragment.OnFragmentInteractionListener {
 
-    Fragment mainFragment;
+    private static final String MOVIE_DETAILS_FRAGMENT_TAG = "MDFTAG";
+    private boolean mTwoPane;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            mainFragment = new PlaceholderFragment();
-            getFragmentManager().beginTransaction()
-                    .add(R.id.container, mainFragment)
-                    .commit();
+
+        if (findViewById(R.id.movie_detail_container) != null) {
+            // The detail container view will be present only in the large-screen layouts
+            // (res/layout-sw600dp). If this view is present, then the activity should be
+            // in two-pane mode.
+            mTwoPane = true;
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            if (savedInstanceState == null) {
+
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.movie_detail_container, new MovieDetailsFragment(), MOVIE_DETAILS_FRAGMENT_TAG)
+                        .commit();
+            }
         } else {
-            mainFragment = getFragmentManager().getFragment(
-                    savedInstanceState, "mainFragment");
+            mTwoPane = false;
         }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //Save the fragment's instance
-        getFragmentManager().putFragment(outState, "mainFragment", mainFragment);
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        MovieGridFragment movieGridFragment = (MovieGridFragment) getFragmentManager().findFragmentById(R.id.container);
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_sort_popularity) {
-            sortMovies(new PlaceholderFragment(), "popularity.desc");
+            movieGridFragment.onChangeSortingOrder("popularity.desc");
             return true;
         } else if (id == R.id.action_sort_rating) {
-            sortMovies(new PlaceholderFragment(), "vote_average.desc");
+            movieGridFragment.onChangeSortingOrder("vote_average.desc");
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void sortMovies(Fragment fragment, String sortBy){
+    @Override
+    public void onFragmentInteraction(Uri uri) {
 
-        // Supply index input as an argument.
-        Bundle args = new Bundle();
-        args.putString("sortBy", sortBy);
-        fragment.setArguments(args);
-        FragmentTransaction transaction;
-        transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.container, fragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
+    public static class MovieGridFragment extends Fragment {
 
         private final Boolean FETCH_LOCAL = false;
         private String BASE_URL;
@@ -96,7 +91,9 @@ public class MainActivity extends AppCompatActivity {
         private MovieInfoResponse movieInfo;
         private MovieInfoAdapter movieInfoAdapter = new MovieInfoAdapter();
         private EndlessRecyclerViewAdapter recyclerViewAdapter;
-        public PlaceholderFragment() {
+        private RecyclerView recyclerView;
+
+        public MovieGridFragment() {
         }
 
         @Override
@@ -108,15 +105,14 @@ public class MainActivity extends AppCompatActivity {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
             initValues(rootView.getContext().getResources());
-            final RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.rv);
+            recyclerView = (RecyclerView) rootView.findViewById(R.id.rv);
+            recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-            rv.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-            rv.setItemAnimator(new DefaultItemAnimator());
+            recyclerViewAdapter = createRecyclerViewAdapter(recyclerView, rootView.getContext(), movieInfoAdapter);
 
-            recyclerViewAdapter = createRecyclerViewAdapter(rv, rv.getContext(), movieInfoAdapter);
-
-            if(savedInstanceState == null){
-                fetchMovieData(rv, rootView.getContext());
+            if (savedInstanceState == null) {
+                fetchMovieData(recyclerView, rootView.getContext());
             }
 
             return rootView;
@@ -126,13 +122,12 @@ public class MainActivity extends AppCompatActivity {
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
-            final RecyclerView rv = (RecyclerView) getActivity().findViewById(R.id.rv);
             if (savedInstanceState != null) {
                 //Restore the fragment's state here
                 movieInfo = savedInstanceState.getParcelable("movieInfo");
                 assert movieInfo != null;
                 movieInfoAdapter.appendItems(movieInfo.results);
-                rv.setAdapter(recyclerViewAdapter);
+                recyclerView.setAdapter(recyclerViewAdapter);
             }
         }
 
@@ -142,26 +137,32 @@ public class MainActivity extends AppCompatActivity {
             //Save the fragment's state here
             outState.putParcelable("movieInfo", movieInfo);
         }
-        private void initValues(Resources resources){
+
+        public void onChangeSortingOrder(String sortOrder) {
+            sortBy = sortOrder;
+            movieInfoAdapter.clear();
+            fetchMovieData(recyclerView, recyclerView.getContext());
+
+        }
+
+        private void initValues(Resources resources) {
             this.BASE_URL = resources.getString(R.string.base_url);
             this.API_KEY = resources.getString(R.string.tmdb_api_key);
         }
 
-        private EndlessRecyclerViewAdapter createRecyclerViewAdapter(final RecyclerView rv, final Context ctx, MovieInfoAdapter movieInfoAdapter){
-              return new EndlessRecyclerViewAdapter(ctx, movieInfoAdapter, new EndlessRecyclerViewAdapter.RequestToLoadMoreListener() {
-                  @Override
-                  public void onLoadMoreRequested() {
-                      fetchMovieData(rv, ctx);
-                  }
-              });
+        private EndlessRecyclerViewAdapter createRecyclerViewAdapter(final RecyclerView rv, final Context ctx, MovieInfoAdapter movieInfoAdapter) {
+            return new EndlessRecyclerViewAdapter(ctx, movieInfoAdapter, new EndlessRecyclerViewAdapter.RequestToLoadMoreListener() {
+                @Override
+                public void onLoadMoreRequested() {
+                    fetchMovieData(rv, ctx);
+                }
+            });
         }
 
-        private void fetchMovieData(final RecyclerView rv, final Context ctx){
-            TheMovieDbService client = ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL, FETCH_LOCAL, ctx);
-            client.discover(this.sortBy, this.API_KEY, getPage(), new Callback<MovieInfoResponse>() {
+        private void fetchMovieData(final RecyclerView rv, final Context ctx) {
+            ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL, FETCH_LOCAL, ctx).discover(this.sortBy, this.API_KEY, getPage(), new Callback<MovieInfoResponse>() {
                 @Override
                 public void success(MovieInfoResponse movieInfoResponse, Response response) {
-                    // here you do stuff with returned tasks
                     movieInfo = movieInfoResponse;
                     movieInfoAdapter.appendItems(movieInfo.results);
                     rv.setAdapter(createRecyclerViewAdapter(rv, rv.getContext(), movieInfoAdapter));
@@ -176,13 +177,8 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        private int getPage(){
-            if(movieInfo == null){
-                return 1;
-            }
-            else {
-                return movieInfoAdapter.getItemCount()/20 + 1;
-            }
+        private int getPage() {
+            return movieInfo == null ? 1 : movieInfoAdapter.getItemCount() / 20 + 1;
         }
     }
 }
