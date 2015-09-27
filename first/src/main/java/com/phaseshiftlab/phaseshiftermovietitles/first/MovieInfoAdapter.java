@@ -1,7 +1,6 @@
 package com.phaseshiftlab.phaseshiftermovietitles.first;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +16,7 @@ import java.util.List;
 public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.ViewHolder> {
     private static final String MOVIE_PARCEL = "com.phaseshiftlab.phaseshiftermovietitles.first.MovieInfo";
     private List<MovieInfo> mDataset;
+    private MovieGridFragment movieGridFragment;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -32,7 +32,8 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.View
         }
     }
 
-    public MovieInfoAdapter() {
+    public MovieInfoAdapter(MovieGridFragment movieGridFragment) {
+        this.movieGridFragment = movieGridFragment;
     }
 
     // Create new views (invoked by the layout manager)
@@ -62,9 +63,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.View
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), MovieItemDetailActivity.class);
-                intent.putExtra(MOVIE_PARCEL, mDataset.get(position));
-                view.getContext().startActivity(intent);
+                   callClickItem(position);
             }
 
         });
@@ -74,6 +73,11 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.View
     @Override
     public int getItemCount() {
         return mDataset != null ? mDataset.size() : 0;
+    }
+
+    public void callClickItem(Integer position){
+        ((MovieGridFragment.ItemSelectedCallback) movieGridFragment.getActivity())
+                .onItemSelected(mDataset.get(position));
     }
 
     public void appendItems(List<MovieInfo> items) {

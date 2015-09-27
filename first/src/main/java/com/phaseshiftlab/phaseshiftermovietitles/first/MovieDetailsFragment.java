@@ -1,6 +1,5 @@
 package com.phaseshiftlab.phaseshiftermovietitles.first;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -26,7 +25,7 @@ import com.squareup.picasso.Picasso;
  * create an instance of this fragment.
  */
 public class MovieDetailsFragment extends Fragment {
-    private static final String MOVIE_PARCEL = "com.phaseshiftlab.phaseshiftermovietitles.first.MovieInfo";
+    protected static final String MOVIE_PARCEL = "com.phaseshiftlab.phaseshiftermovietitles.first.MovieInfo";
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -82,13 +81,22 @@ public class MovieDetailsFragment extends Fragment {
         // Inflate the layout for this fragment
         ScrollView sv = (ScrollView) inflater.inflate(R.layout.fragment_movie_details, container, false);
         Intent intent =  getActivity().getIntent();
-        if(intent == null || intent.getExtras() == null){
+        MovieInfo movieInfo = null;
+        if(intent == null){
             return null;
         } else {
-            MovieInfo movieInfo = getActivity().getIntent().getExtras().getParcelable(MOVIE_PARCEL);
+            if(intent.getExtras() != null){
+                movieInfo = getActivity().getIntent().getExtras().getParcelable(MOVIE_PARCEL);
+            } else if(getArguments() != null){
+                movieInfo = getArguments().getParcelable(MOVIE_PARCEL);
+            }
+
             ButterKnife.bind(this, sv);
-            populateViews(movieInfo);
+            if(movieInfo != null){
+                populateViews(movieInfo);
+            }
             return sv;
+
         }
     }
 
@@ -117,12 +125,12 @@ public class MovieDetailsFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         try {
-            mListener = (OnFragmentInteractionListener) activity;
+            mListener = (OnFragmentInteractionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }
@@ -145,7 +153,7 @@ public class MovieDetailsFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+        void onFragmentInteraction(Uri uri);
     }
 
 }
