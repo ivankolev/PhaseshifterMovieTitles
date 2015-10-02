@@ -1,10 +1,14 @@
 package com.phaseshiftlab.phaseshiftermovietitles.first;
 
 import android.app.Fragment;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +17,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import com.phaseshiftlab.phaseshiftermovietitles.first.data.FavoriteMoviesContract;
 import com.squareup.picasso.Picasso;
 
 
@@ -25,7 +30,9 @@ import com.squareup.picasso.Picasso;
  * create an instance of this fragment.
  */
 public class MovieDetailsFragment extends Fragment {
+    private static final String TAG = "MovieDetailsFragment";
     protected static final String MOVIE_PARCEL = "com.phaseshiftlab.phaseshiftermovietitles.first.MovieInfo";
+    private MovieInfo movieInfo = null;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -81,7 +88,6 @@ public class MovieDetailsFragment extends Fragment {
         // Inflate the layout for this fragment
         ScrollView sv = (ScrollView) inflater.inflate(R.layout.fragment_movie_details, container, false);
         Intent intent =  getActivity().getIntent();
-        MovieInfo movieInfo = null;
         if(intent == null){
             return null;
         } else {
@@ -93,22 +99,14 @@ public class MovieDetailsFragment extends Fragment {
 
             ButterKnife.bind(this, sv);
             if(movieInfo != null){
-                populateViews(movieInfo);
+                populateViews();
             }
             return sv;
 
         }
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-
-    private void populateViews(MovieInfo movieInfo) {
+    private void populateViews() {
         originalTitle.setText(movieInfo.original_title);
 
         Context context = moviePosterThumb.getContext();
@@ -139,6 +137,49 @@ public class MovieDetailsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public long onToggleFavorite(View view) {
+        Log.d(TAG, movieInfo.id.toString());
+        long movieId;
+
+        // First, check if the location with this city name exists in the db
+        Cursor favoritesCursor = view.getContext().getContentResolver().query(
+                FavoriteMoviesContract.FavoritesEntry.CONTENT_URI,
+                new String[]{FavoriteMoviesContract.FavoritesEntry._ID},
+                FavoriteMoviesContract.FavoritesEntry.COLUMN_MOVIE_ID + " = ?",
+                new String[]{String.valueOf(movieInfo.id)},
+                null);
+
+        if (favoritesCursor.moveToFirst()) {
+            int favoriteIdIndex = favoritesCursor.getColumnIndex(FavoriteMoviesContract.FavoritesEntry._ID);
+            movieId = favoritesCursor.getInt(favoriteIdIndex);
+        } else {
+            // Now that the content provider is set up, inserting rows of data is pretty simple.
+            // First create a ContentValues object to hold the data you want to insert.
+            ContentValues favoritesValues = new ContentValues();
+
+            // Then add the data, along with the corresponding name of the data type,
+            // so the content provider knows what kind of value is being inserted.
+            favoritesValues.put(FavoriteMoviesContract.FavoritesEntry.COLUMN_MOVIE_ID , movieInfo.id);
+            favoritesValues.put(FavoriteMoviesContract.FavoritesEntry.COLUMN_IS_FAVORITE, true);
+
+
+            // Finally, insert location data into the database.
+            Uri insertedUri = view.getContext().getContentResolver().insert(
+                    FavoriteMoviesContract.FavoritesEntry.CONTENT_URI,
+                    favoritesValues
+            );
+
+            // The resulting URI contains the ID for the row.  Extract the locationId from the Uri.
+            movieId = ContentUris.parseId(insertedUri);
+        }
+
+        favoritesCursor.close();
+        // Wait, that worked?  Yes!
+        return movieId;
+
+
     }
 
     /**

@@ -3,7 +3,6 @@
     package="com.phaseshiftlab.phaseshiftermovietitles.first" >
 
     <uses-permission android:name="android.permission.INTERNET" />
-
     <application
         android:allowBackup="true"
         android:fullBackupContent="true"
@@ -13,7 +12,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,6 +27,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.phaseshiftlab.phaseshiftermovietitles.first.MainActivity" />
         </activity>
-    </application>
 
+        <provider
+            android:name=".data.FavoriteMoviesContentProvider"
+            android:authorities="com.phaseshiftlab.phaseshiftermovietitles.first"/>
+    </application>
 </manifest>

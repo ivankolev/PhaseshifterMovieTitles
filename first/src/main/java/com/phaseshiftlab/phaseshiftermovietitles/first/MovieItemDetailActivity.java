@@ -45,6 +45,8 @@ public class MovieItemDetailActivity extends AppCompatActivity implements MovieD
 
     public void toggleFavorite(View view) {
         makeText(view.getContext(), view.getContext().getResources().getString(R.string.toggle_add_to_fav), Toast.LENGTH_SHORT).show();
+        MovieDetailsFragment movieDetailsFragment = (MovieDetailsFragment) getFragmentManager().findFragmentById(R.id.movie_detail_container);
+        movieDetailsFragment.onToggleFavorite(view);
 
     }
 
