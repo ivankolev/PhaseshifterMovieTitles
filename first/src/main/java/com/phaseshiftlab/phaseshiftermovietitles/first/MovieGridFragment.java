@@ -1,24 +1,33 @@
 package com.phaseshiftlab.phaseshiftermovietitles.first;
 
 import android.app.Fragment;
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import com.phaseshiftlab.phaseshiftermovietitles.first.data.FavoriteMoviesContract;
 import com.rockerhieu.rvadapter.endless.EndlessRecyclerViewAdapter;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
+import java.util.HashSet;
+
 import static android.widget.Toast.makeText;
 
-public class MovieGridFragment extends Fragment {
+public class MovieGridFragment extends Fragment implements
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     private final Boolean FETCH_LOCAL = false;
     private String BASE_URL;
@@ -28,7 +37,9 @@ public class MovieGridFragment extends Fragment {
     private MovieInfoAdapter movieInfoAdapter;
     private EndlessRecyclerViewAdapter recyclerViewAdapter;
     private RecyclerView recyclerView;
-    private Integer NUMBER_OF_GRID_COLUMNS = 2;
+    private Integer NUMBER_OF_GRID_COLUMNS = 2; //TODO make it 3 columns on landscape
+    private static final int URL_LOADER = 0;
+    private HashSet<Integer> favoriteMoviesIdSet = new HashSet<>();
 
     public MovieGridFragment() {
     }
@@ -46,7 +57,7 @@ public class MovieGridFragment extends Fragment {
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), NUMBER_OF_GRID_COLUMNS));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        movieInfoAdapter = new MovieInfoAdapter(this);
+        movieInfoAdapter = new MovieInfoAdapter(this, rootView.getContext());
         recyclerViewAdapter = createRecyclerViewAdapter(recyclerView, rootView.getContext(), movieInfoAdapter);
 
 
@@ -78,9 +89,13 @@ public class MovieGridFragment extends Fragment {
     }
 
     public void onChangeSortingOrder(String sortOrder) {
-        sortBy = sortOrder;
-        movieInfoAdapter.clear();
-        fetchMovieData(recyclerView, recyclerView.getContext());
+        if(sortOrder.equalsIgnoreCase(MainActivity.SortMode.FAVORITES.get(MainActivity.SortMode.DESC))) {
+             movieInfoAdapter.sortByFavorites();
+        } else {
+            sortBy = sortOrder;
+            movieInfoAdapter.clear();
+            fetchMovieData(recyclerView, recyclerView.getContext());
+        }
     }
 
     private void initValues(Resources resources) {
@@ -105,7 +120,12 @@ public class MovieGridFragment extends Fragment {
                 movieInfoAdapter.appendItems(movieInfo.results);
                 rv.setAdapter(createRecyclerViewAdapter(rv, rv.getContext(), movieInfoAdapter));
                 recyclerViewAdapter.onDataReady(true);
+
                 rv.scrollToPosition(movieInfoAdapter.getItemCount() - 22);
+
+                MovieGridFragment movieGridFragment =(MovieGridFragment) getFragmentManager().findFragmentById(R.id.container);
+                getLoaderManager().initLoader(URL_LOADER, null, movieGridFragment);
+
                 ((MovieGridFragment.OnFragmentInteractionListener) getActivity())
                         .onFragmentInteraction(movieInfo.results.get(0));
             }
@@ -121,21 +141,44 @@ public class MovieGridFragment extends Fragment {
         return movieInfo == null ? 1 : movieInfoAdapter.getItemCount() / 20 + 1;
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case URL_LOADER:
+                return new CursorLoader(
+                        getActivity(),
+                        FavoriteMoviesContract.FavoritesEntry.CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                        null
+                );
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d("onLoadFinished", String.format("Cursor count: %d", data.getCount()));
+        favoriteMoviesIdSet = new HashSet<>();
+        for(data.moveToFirst(); !data.isAfterLast(); data.moveToNext()){
+            final Integer favoriteMovieId = data.getInt(data.getColumnIndex(FavoriteMoviesContract.FavoritesEntry.COLUMN_MOVIE_ID));
+            favoriteMoviesIdSet.add(favoriteMovieId);
+        }
+        MovieDetailsFragment movieDetailsFragment = (MovieDetailsFragment) getFragmentManager().findFragmentById(R.id.movie_detail_container);
+        movieInfoAdapter.appendFavoriteInfo(favoriteMoviesIdSet, movieDetailsFragment);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
 
     public interface ItemSelectedCallback {
         void onItemSelected(MovieInfo movieInfo);
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(MovieInfo movieInfo);

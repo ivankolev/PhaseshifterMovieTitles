@@ -22,6 +22,7 @@ public class MovieInfo implements Parcelable {
     public String title;
     public Double vote_average;
     public Integer vote_count;
+    public Boolean is_favorite = false;
 
     @Override
     public int describeContents() {
@@ -47,6 +48,7 @@ public class MovieInfo implements Parcelable {
         dest.writeString(this.title);
         dest.writeValue(this.vote_average);
         dest.writeValue(this.vote_count);
+        dest.writeValue(this.is_favorite);
     }
 
     public MovieInfo() {
@@ -70,6 +72,7 @@ public class MovieInfo implements Parcelable {
         this.title = in.readString();
         this.vote_average = (Double) in.readValue(Double.class.getClassLoader());
         this.vote_count = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.is_favorite = (Boolean) in.readValue(Boolean.class.getClassLoader());
     }
 
     public static final Creator<MovieInfo> CREATOR = new Creator<MovieInfo>() {

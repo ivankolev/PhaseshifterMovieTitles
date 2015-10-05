@@ -1,17 +1,17 @@
 package com.phaseshiftlab.phaseshiftermovietitles.first;
 
 import android.app.Fragment;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
+import android.app.LoaderManager;
+import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatButton;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -20,24 +20,15 @@ import butterknife.ButterKnife;
 import com.phaseshiftlab.phaseshiftermovietitles.first.data.FavoriteMoviesContract;
 import com.squareup.picasso.Picasso;
 
+import java.util.Objects;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MovieDetailsFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MovieDetailsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class MovieDetailsFragment extends Fragment {
+
+public class MovieDetailsFragment extends Fragment implements
+        LoaderManager.LoaderCallbacks<Cursor>{
     private static final String TAG = "MovieDetailsFragment";
     protected static final String MOVIE_PARCEL = "com.phaseshiftlab.phaseshiftermovietitles.first.MovieInfo";
+    private static final int URL_LOADER = 1;
     private MovieInfo movieInfo = null;
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
     @Bind(R.id.originalTitle) TextView originalTitle;
     @Bind(R.id.moviePosterThumb) ImageView moviePosterThumb;
@@ -45,29 +36,8 @@ public class MovieDetailsFragment extends Fragment {
     @Bind(R.id.userRating) TextView userRating;
     @Bind(R.id.releaseDate) TextView releaseDate;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    private OnFragmentInteractionListener mListener;
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MovieDetailsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static MovieDetailsFragment newInstance(String param1, String param2) {
-        MovieDetailsFragment fragment = new MovieDetailsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private Context context;
+    private ScrollView scrollView;
 
     public MovieDetailsFragment() {
         // Required empty public constructor
@@ -76,17 +46,14 @@ public class MovieDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        ScrollView sv = (ScrollView) inflater.inflate(R.layout.fragment_movie_details, container, false);
+        scrollView = (ScrollView) inflater.inflate(R.layout.fragment_movie_details, container, false);
+        context = scrollView.getContext();
         Intent intent =  getActivity().getIntent();
         if(intent == null){
             return null;
@@ -97,14 +64,35 @@ public class MovieDetailsFragment extends Fragment {
                 movieInfo = getArguments().getParcelable(MOVIE_PARCEL);
             }
 
-            ButterKnife.bind(this, sv);
+            ButterKnife.bind(this, scrollView);
             if(movieInfo != null){
                 populateViews();
+                initFavoritesButton(movieInfo.is_favorite, movieInfo.id);
             }
-            return sv;
+
+            return scrollView;
 
         }
+
+
     }
+
+
+    public void initFavoritesButton(Boolean isFavorite, Integer movieId){
+        if(Objects.equals(movieInfo.id, movieId)){
+            Button btnStart = (Button) scrollView.findViewById(R.id.toggleFavorites);
+            if(isFavorite){
+                btnStart.setText(R.string.remove_fav);
+            }
+            btnStart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onToggleFavorite(view);
+                }
+            });
+        }
+    }
+
 
     private void populateViews() {
         originalTitle.setText(movieInfo.original_title);
@@ -122,79 +110,80 @@ public class MovieDetailsFragment extends Fragment {
         releaseDate.setText(context.getResources().getString(R.string.release_date) + movieInfo.release_date);
     }
 
+
+    public void onToggleFavorite(View view) {
+        Log.d(TAG, movieInfo.id.toString());
+        if(movieInfo.is_favorite){
+            ((AppCompatButton) view).setText(context.getResources().getString(R.string.add_fav));
+        } else {
+            ((AppCompatButton) view).setText(context.getResources().getString(R.string.remove_fav));
+        }
+        getLoaderManager().restartLoader(URL_LOADER, null, this);
+    }
+
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            mListener = (OnFragmentInteractionListener) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case URL_LOADER:
+                // Returns a new CursorLoader
+                return new CursorLoader(
+                        getActivity(),
+                        FavoriteMoviesContract.FavoritesEntry.CONTENT_URI,
+                        new String[]{FavoriteMoviesContract.FavoritesEntry._ID},
+                        FavoriteMoviesContract.FavoritesEntry.COLUMN_MOVIE_ID + " = ?",
+                        new String[]{String.valueOf(movieInfo.id)},
+                        null            // Default sort order
+                );
+            default:
+                // An invalid id was passed in
+                return null;
         }
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d(TAG, "loadFinished in DetailsFragment");
 
-    public long onToggleFavorite(View view) {
-        Log.d(TAG, movieInfo.id.toString());
         long movieId;
 
-        // First, check if the location with this city name exists in the db
-        Cursor favoritesCursor = view.getContext().getContentResolver().query(
-                FavoriteMoviesContract.FavoritesEntry.CONTENT_URI,
-                new String[]{FavoriteMoviesContract.FavoritesEntry._ID},
-                FavoriteMoviesContract.FavoritesEntry.COLUMN_MOVIE_ID + " = ?",
-                new String[]{String.valueOf(movieInfo.id)},
-                null);
+        if (data.moveToFirst()) {
+            int favoriteIdIndex = data.getColumnIndex(FavoriteMoviesContract.FavoritesEntry._ID);
+            movieId = data.getInt(favoriteIdIndex);
 
-        if (favoritesCursor.moveToFirst()) {
-            int favoriteIdIndex = favoritesCursor.getColumnIndex(FavoriteMoviesContract.FavoritesEntry._ID);
-            movieId = favoritesCursor.getInt(favoriteIdIndex);
+            String mSelectionClause = FavoriteMoviesContract.FavoritesEntry.COLUMN_MOVIE_ID +  "= ?";
+            String[] mSelectionArgs = {String.valueOf(movieInfo.id)};
+
+            int mRowsDeleted = 0;
+
+            mRowsDeleted = context.getContentResolver().delete(
+                    FavoriteMoviesContract.FavoritesEntry.CONTENT_URI,   // the user dictionary content URI
+                    mSelectionClause,                    // the column to select on
+                    mSelectionArgs                      // the value to compare to
+            );
+
         } else {
-            // Now that the content provider is set up, inserting rows of data is pretty simple.
-            // First create a ContentValues object to hold the data you want to insert.
             ContentValues favoritesValues = new ContentValues();
 
-            // Then add the data, along with the corresponding name of the data type,
-            // so the content provider knows what kind of value is being inserted.
             favoritesValues.put(FavoriteMoviesContract.FavoritesEntry.COLUMN_MOVIE_ID , movieInfo.id);
             favoritesValues.put(FavoriteMoviesContract.FavoritesEntry.COLUMN_IS_FAVORITE, true);
 
 
-            // Finally, insert location data into the database.
-            Uri insertedUri = view.getContext().getContentResolver().insert(
+            Uri insertedUri = context.getContentResolver().insert(
                     FavoriteMoviesContract.FavoritesEntry.CONTENT_URI,
                     favoritesValues
             );
 
-            // The resulting URI contains the ID for the row.  Extract the locationId from the Uri.
             movieId = ContentUris.parseId(insertedUri);
         }
 
-        favoritesCursor.close();
-        // Wait, that worked?  Yes!
-        return movieId;
-
-
+        MovieGridFragment movieGridFragment =(MovieGridFragment) getFragmentManager().findFragmentById(R.id.container);
+        if(movieGridFragment != null) {
+            getLoaderManager().initLoader(0, null, movieGridFragment);
+        }
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
 }

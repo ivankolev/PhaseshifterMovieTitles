@@ -30,6 +30,9 @@
 
         <provider
             android:name=".data.FavoriteMoviesContentProvider"
-            android:authorities="com.phaseshiftlab.phaseshiftermovietitles.first"/>
+            android:authorities="com.phaseshiftlab.phaseshiftermovietitles.first"
+            android:enabled="true"
+            android:exported="true">
+        </provider>
     </application>
 </manifest>

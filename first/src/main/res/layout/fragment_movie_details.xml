@@ -67,14 +67,13 @@
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/add_remove_fav"
-            android:id="@+id/button"
+            android:text="@string/add_fav"
+            android:id="@+id/toggleFavorites"
             android:layout_alignEnd="@+id/releaseDate"
             android:layout_alignParentEnd="true"
             android:layout_below="@+id/releaseDate"
             android:clickable="true"
-            android:enabled="true"
-            android:onClick="toggleFavorite"/>
+            android:enabled="true"/>
 
         <TextView
             android:layout_width="fill_parent"

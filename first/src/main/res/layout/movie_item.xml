@@ -19,6 +19,12 @@
             android:layout_height="match_parent"
             android:clickable="true"
             android:nestedScrollingEnabled="true"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/movie_favorite_text"
+            android:textSize="@dimen/fav_star_size"
+            android:textColor="@color/fav_gold"/>
     </FrameLayout>
 
 

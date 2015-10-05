@@ -1,17 +1,12 @@
 package com.phaseshiftlab.phaseshiftermovietitles.first;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
-
-import static android.widget.Toast.makeText;
 
 
-public class MovieItemDetailActivity extends AppCompatActivity implements MovieDetailsFragment.OnFragmentInteractionListener {
+public class MovieItemDetailActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,17 +36,5 @@ public class MovieItemDetailActivity extends AppCompatActivity implements MovieD
         int id = item.getItemId();
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void toggleFavorite(View view) {
-        makeText(view.getContext(), view.getContext().getResources().getString(R.string.toggle_add_to_fav), Toast.LENGTH_SHORT).show();
-        MovieDetailsFragment movieDetailsFragment = (MovieDetailsFragment) getFragmentManager().findFragmentById(R.id.movie_detail_container);
-        movieDetailsFragment.onToggleFavorite(view);
-
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
     }
 }
