@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieInfo;
 import com.squareup.picasso.Picasso;
 
 import java.util.Collections;
@@ -18,7 +19,7 @@ import java.util.List;
  * Created by phaseshiftlab on 8/23/2015. Using template from http://www.vogella.com/tutorials/AndroidRecyclerView/article.html
  */
 public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.ViewHolder> {
-    private static final String MOVIE_PARCEL = "com.phaseshiftlab.phaseshiftermovietitles.first.MovieInfo";
+    private static final String MOVIE_PARCEL = "com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieInfo";
     private List<MovieInfo> mDataset;
     private MovieGridFragment movieGridFragment;
     private Context context;

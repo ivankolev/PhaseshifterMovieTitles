@@ -1,4 +1,4 @@
-package com.phaseshiftlab.phaseshiftermovietitles.first;
+package com.phaseshiftlab.phaseshiftermovietitles.first.parcels;
 
 import android.os.Parcel;
 import android.os.Parcelable;

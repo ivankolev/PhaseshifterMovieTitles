@@ -3,6 +3,7 @@ package com.phaseshiftlab.phaseshiftermovietitles.first;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.*;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,22 +12,27 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ScrollView;
-import android.widget.TextView;
+import android.widget.*;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.phaseshiftlab.phaseshiftermovietitles.first.data.FavoriteMoviesContract;
+import com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieInfo;
+import com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieRelatedVideos;
+import com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieRelatedVideosResponse;
 import com.squareup.picasso.Picasso;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 import java.util.Objects;
+
+import static android.widget.Toast.makeText;
 
 
 public class MovieDetailsFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor>{
     private static final String TAG = "MovieDetailsFragment";
-    protected static final String MOVIE_PARCEL = "com.phaseshiftlab.phaseshiftermovietitles.first.MovieInfo";
+    protected static final String MOVIE_PARCEL = "com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieInfo";
     private static final int URL_LOADER = 1;
     private MovieInfo movieInfo = null;
 
@@ -35,9 +41,15 @@ public class MovieDetailsFragment extends Fragment implements
     @Bind(R.id.plotSynopsis) TextView plotSynopsis;
     @Bind(R.id.userRating) TextView userRating;
     @Bind(R.id.releaseDate) TextView releaseDate;
+    @Bind(R.id.videosListView) ListView videosListView;
 
     private Context context;
     private ScrollView scrollView;
+    private String BASE_URL;
+    private String API_KEY;
+
+    private MovieRelatedVideosResponse movieRelatedVideosResponse;
+    private MovieRelatedVideosAdapter relatedVideosAdapter;
 
     public MovieDetailsFragment() {
         // Required empty public constructor
@@ -66,15 +78,81 @@ public class MovieDetailsFragment extends Fragment implements
 
             ButterKnife.bind(this, scrollView);
             if(movieInfo != null){
+                initValues(scrollView.getContext().getResources());
                 populateViews();
                 initFavoritesButton(movieInfo.is_favorite, movieInfo.id);
+                fetchTrailersData();
+                setVideosClickHandler();
             }
-
             return scrollView;
-
         }
 
 
+    }
+
+    private void setVideosClickHandler() {
+        videosListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                MovieRelatedVideos video = movieRelatedVideosResponse.results.get(position);
+                if(video.site.equalsIgnoreCase("youtube")){
+                    watchYoutubeVideo(video.key);
+                }
+            }
+        });
+    }
+
+    //    Credit: http://stackoverflow.com/a/12439378
+    private void watchYoutubeVideo(String id){
+        try{
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id));
+            startActivity(intent);
+        }catch (ActivityNotFoundException ex){
+            Intent intent=new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("http://www.youtube.com/watch?v="+id));
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            //Restore the fragment's state here
+            movieRelatedVideosResponse = savedInstanceState.getParcelable("movieRelatedVideos");
+            assert movieRelatedVideosResponse != null;
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Save the fragment's state here
+        outState.putParcelable("movieRelatedVideos", movieRelatedVideosResponse);
+    }
+
+    private void fetchTrailersData() {
+        ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL, false, context).videos(movieInfo.id.toString(), this.API_KEY, new Callback<MovieRelatedVideosResponse>(){
+
+            @Override
+            public void success(MovieRelatedVideosResponse relatedVideosResponse, Response response) {
+                movieRelatedVideosResponse = relatedVideosResponse;
+                relatedVideosAdapter = new MovieRelatedVideosAdapter(context, movieRelatedVideosResponse.results);
+                videosListView.setAdapter(relatedVideosAdapter);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                makeText(context, context.getResources().getString(R.string.retrofit_error_message), Toast.LENGTH_SHORT).show();
+
+            }
+        });
+    }
+
+    private void initValues(Resources resources) {
+        this.BASE_URL = resources.getString(R.string.base_url);
+        this.API_KEY = resources.getString(R.string.tmdb_api_key);
     }
 
 

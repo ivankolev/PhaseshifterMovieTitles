@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieInfo;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -12,7 +13,7 @@ public class MainActivity extends AppCompatActivity implements
         MovieGridFragment.OnFragmentInteractionListener {
 
     private static final String MOVIE_DETAILS_FRAGMENT_TAG = "MDFTAG";
-    private static final String MOVIE_PARCEL = "com.phaseshiftlab.phaseshiftermovietitles.first.MovieInfo";
+    private static final String MOVIE_PARCEL = "com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieInfo";
     private boolean mTwoPane;
     MovieGridFragment movieGridFragment;
 

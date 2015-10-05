@@ -1,4 +1,4 @@
-package com.phaseshiftlab.phaseshiftermovietitles.first;
+package com.phaseshiftlab.phaseshiftermovietitles.first.parcels;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import java.util.List;
 
 public class MovieInfoResponse implements Parcelable {
-    List<MovieInfo> results;
+    public List<MovieInfo> results;
     int page;
 
     @Override

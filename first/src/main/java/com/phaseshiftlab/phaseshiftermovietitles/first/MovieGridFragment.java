@@ -17,6 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import com.phaseshiftlab.phaseshiftermovietitles.first.data.FavoriteMoviesContract;
+import com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieInfo;
+import com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieInfoResponse;
 import com.rockerhieu.rvadapter.endless.EndlessRecyclerViewAdapter;
 import retrofit.Callback;
 import retrofit.RetrofitError;

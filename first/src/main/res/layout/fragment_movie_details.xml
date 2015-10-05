@@ -3,7 +3,8 @@
     android:id="@+id/itemDetailScrollView"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_width="match_parent"
@@ -85,6 +86,12 @@
             android:layout_below="@+id/moviePosterThumb"
             android:layout_alignParentEnd="true"
             android:layout_margin="5dp"/>
+
+        <ListView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/videosListView"
+            android:layout_below="@+id/plotSynopsis"/>
 
     </RelativeLayout>
 </ScrollView>
