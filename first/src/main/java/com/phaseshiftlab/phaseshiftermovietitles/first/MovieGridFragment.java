@@ -30,8 +30,6 @@ import static android.widget.Toast.makeText;
 
 public class MovieGridFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
-
-    private final Boolean FETCH_LOCAL = false;
     private String BASE_URL;
     private String API_KEY;
     private String sortBy;
@@ -115,7 +113,7 @@ public class MovieGridFragment extends Fragment implements
     }
 
     private void fetchMovieData(final RecyclerView rv, final Context ctx) {
-        ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL, FETCH_LOCAL, ctx).discover(this.sortBy, this.API_KEY, getPage(), new Callback<MovieInfoResponse>() {
+        ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL, ctx).discover(this.sortBy, this.API_KEY, getPage(), new Callback<MovieInfoResponse>() {
             @Override
             public void success(MovieInfoResponse movieInfoResponse, Response response) {
                 movieInfo = movieInfoResponse;

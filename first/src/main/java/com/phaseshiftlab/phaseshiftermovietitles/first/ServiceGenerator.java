@@ -11,19 +11,11 @@ public class ServiceGenerator {
     private ServiceGenerator() {
     }
 
-    public static <S> S createService(Class<S> serviceClass, String baseUrl, Boolean fetchLocal, Context ctx) {
+    public static <S> S createService(Class<S> serviceClass, String baseUrl, Context ctx) {
         RestAdapter.Builder builder;
-        if(fetchLocal){
-            builder = new RestAdapter.Builder()
-                    .setEndpoint(baseUrl)
-                    .setClient(new LocalJSONClient(ctx));
-        }  else {
-            builder = new RestAdapter.Builder()
-                    .setEndpoint(baseUrl)
-                    .setClient(new OkClient(new OkHttpClient()));
-        }
-
-
+        builder = new RestAdapter.Builder()
+                .setEndpoint(baseUrl)
+                .setClient(new OkClient(new OkHttpClient()));
         RestAdapter adapter = builder.build();
 
         return adapter.create(serviceClass);

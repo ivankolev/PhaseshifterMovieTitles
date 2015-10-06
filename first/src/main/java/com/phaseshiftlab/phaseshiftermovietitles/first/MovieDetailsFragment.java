@@ -133,7 +133,7 @@ public class MovieDetailsFragment extends Fragment implements
     }
 
     private void fetchTrailersData() {
-        ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL, false, context).videos(movieInfo.id.toString(), this.API_KEY, new Callback<MovieRelatedVideosResponse>(){
+        ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL, context).videos(movieInfo.id.toString(), this.API_KEY, new Callback<MovieRelatedVideosResponse>(){
 
             @Override
             public void success(MovieRelatedVideosResponse relatedVideosResponse, Response response) {
