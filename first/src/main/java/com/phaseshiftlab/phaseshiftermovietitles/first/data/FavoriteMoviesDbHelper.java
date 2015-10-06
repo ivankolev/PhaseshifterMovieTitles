@@ -6,13 +6,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.phaseshiftlab.phaseshiftermovietitles.first.data.FavoriteMoviesContract.FavoritesEntry;
 
-/**
- * Created by phaseshiftlab on 10/1/2015.
- */
 public class FavoriteMoviesDbHelper  extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     static final String DATABASE_NAME = "favorites.db";
 

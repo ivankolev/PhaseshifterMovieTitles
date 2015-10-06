@@ -19,6 +19,7 @@ import com.phaseshiftlab.phaseshiftermovietitles.first.data.FavoriteMoviesContra
 import com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieInfo;
 import com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieRelatedVideos;
 import com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieRelatedVideosResponse;
+import com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieReviewsResponse;
 import com.squareup.picasso.Picasso;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -42,6 +43,7 @@ public class MovieDetailsFragment extends Fragment implements
     @Bind(R.id.userRating) TextView userRating;
     @Bind(R.id.releaseDate) TextView releaseDate;
     @Bind(R.id.videosListView) ListView videosListView;
+    @Bind(R.id.reviewsListView) ListView reviewsListView;
 
     private Context context;
     private ScrollView scrollView;
@@ -50,6 +52,9 @@ public class MovieDetailsFragment extends Fragment implements
 
     private MovieRelatedVideosResponse movieRelatedVideosResponse;
     private MovieRelatedVideosAdapter relatedVideosAdapter;
+
+    private MovieReviewsResponse movieReviewsResponse;
+    private MovieReviewsAdapter movieReviewsAdapter;
 
     public MovieDetailsFragment() {
         // Required empty public constructor
@@ -83,12 +88,15 @@ public class MovieDetailsFragment extends Fragment implements
                 initFavoritesButton(movieInfo.is_favorite, movieInfo.id);
                 fetchTrailersData();
                 setVideosClickHandler();
+                fetchReviewsData();
             }
             return scrollView;
         }
 
 
     }
+
+
 
     private void setVideosClickHandler() {
         videosListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -122,6 +130,9 @@ public class MovieDetailsFragment extends Fragment implements
             //Restore the fragment's state here
             movieRelatedVideosResponse = savedInstanceState.getParcelable("movieRelatedVideos");
             assert movieRelatedVideosResponse != null;
+
+            movieReviewsResponse = savedInstanceState.getParcelable("movieReviews");
+            assert movieReviewsResponse != null;
         }
     }
 
@@ -130,6 +141,26 @@ public class MovieDetailsFragment extends Fragment implements
         super.onSaveInstanceState(outState);
         //Save the fragment's state here
         outState.putParcelable("movieRelatedVideos", movieRelatedVideosResponse);
+        outState.putParcelable("movieReviews", movieReviewsResponse);
+    }
+
+    private void fetchReviewsData() {
+        ServiceGenerator.createService(TheMovieDbService.class, this.BASE_URL, context).reviews(movieInfo.id.toString(), this.API_KEY, new Callback<MovieReviewsResponse>() {
+            @Override
+            public void success(MovieReviewsResponse movieReviews, Response response) {
+                movieReviewsResponse = movieReviews;
+                if(movieReviewsResponse.results.size() > 0){
+                    movieReviewsAdapter = new MovieReviewsAdapter(context, movieReviewsResponse.results);
+                    reviewsListView.setAdapter(movieReviewsAdapter);
+                    scrollView.findViewById(R.id.reviewsHeader).setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                makeText(context, context.getResources().getString(R.string.retrofit_error_message), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void fetchTrailersData() {
@@ -138,14 +169,16 @@ public class MovieDetailsFragment extends Fragment implements
             @Override
             public void success(MovieRelatedVideosResponse relatedVideosResponse, Response response) {
                 movieRelatedVideosResponse = relatedVideosResponse;
-                relatedVideosAdapter = new MovieRelatedVideosAdapter(context, movieRelatedVideosResponse.results);
-                videosListView.setAdapter(relatedVideosAdapter);
+                if(movieRelatedVideosResponse.results.size() > 0){
+                    relatedVideosAdapter = new MovieRelatedVideosAdapter(context, movieRelatedVideosResponse.results);
+                    videosListView.setAdapter(relatedVideosAdapter);
+                    scrollView.findViewById(R.id.videosHeader).setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
             public void failure(RetrofitError error) {
                 makeText(context, context.getResources().getString(R.string.retrofit_error_message), Toast.LENGTH_SHORT).show();
-
             }
         });
     }
@@ -170,7 +203,6 @@ public class MovieDetailsFragment extends Fragment implements
             });
         }
     }
-
 
     private void populateViews() {
         originalTitle.setText(movieInfo.original_title);
@@ -256,7 +288,7 @@ public class MovieDetailsFragment extends Fragment implements
 
         MovieGridFragment movieGridFragment =(MovieGridFragment) getFragmentManager().findFragmentById(R.id.container);
         if(movieGridFragment != null) {
-            getLoaderManager().initLoader(0, null, movieGridFragment);
+            getLoaderManager().restartLoader(0, null, movieGridFragment);
         }
     }
 

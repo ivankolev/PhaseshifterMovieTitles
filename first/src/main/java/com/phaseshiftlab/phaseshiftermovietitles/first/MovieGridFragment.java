@@ -124,7 +124,7 @@ public class MovieGridFragment extends Fragment implements
                 rv.scrollToPosition(movieInfoAdapter.getItemCount() - 22);
 
                 MovieGridFragment movieGridFragment =(MovieGridFragment) getFragmentManager().findFragmentById(R.id.container);
-                getLoaderManager().initLoader(URL_LOADER, null, movieGridFragment);
+                getLoaderManager().restartLoader(URL_LOADER, null, movieGridFragment);
 
                 ((MovieGridFragment.OnFragmentInteractionListener) getActivity())
                         .onFragmentInteraction(movieInfo.results.get(0));

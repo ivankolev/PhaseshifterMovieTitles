@@ -87,11 +87,39 @@
             android:layout_alignParentEnd="true"
             android:layout_margin="5dp"/>
 
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/videos_header"
+            android:id="@+id/videosHeader"
+            android:layout_below="@+id/plotSynopsis"
+            android:layout_margin="5dp"
+            android:visibility="invisible"/>
+
         <ListView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:id="@+id/videosListView"
-            android:layout_below="@+id/plotSynopsis"/>
+            android:layout_below="@+id/videosHeader"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/reviews_header"
+            android:id="@+id/reviewsHeader"
+            android:layout_below="@+id/videosListView"
+            android:layout_margin="5dp"
+            android:visibility="invisible"/>
+
+        <ListView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/reviewsListView"
+            android:layout_below="@+id/reviewsHeader"/>
 
     </RelativeLayout>
 </ScrollView>

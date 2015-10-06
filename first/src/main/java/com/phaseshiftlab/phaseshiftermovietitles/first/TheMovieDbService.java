@@ -1,5 +1,6 @@
 package com.phaseshiftlab.phaseshiftermovietitles.first;
 
+import com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieReviewsResponse;
 import com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieInfoResponse;
 import com.phaseshiftlab.phaseshiftermovietitles.first.parcels.MovieRelatedVideosResponse;
 import retrofit.Callback;
@@ -13,4 +14,7 @@ public interface TheMovieDbService {
 
     @GET("/movie/{id}/videos")
     void videos(@Path("id") String id, @Query("api_key") String apiKey, Callback<MovieRelatedVideosResponse> cb);
+
+    @GET("/movie/{id}/reviews")
+    void reviews(@Path("id") String id, @Query("api_key") String apiKey, Callback<MovieReviewsResponse> cb);
 }

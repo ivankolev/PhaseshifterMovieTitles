@@ -121,7 +121,7 @@ public class MovieInfoAdapter extends RecyclerView.Adapter<MovieInfoAdapter.View
 
     public void appendFavoriteInfo(HashSet<Integer> favoriteIds, MovieDetailsFragment movieDetailsFragment){
           if(mDataset != null) {
-              if(favoriteIds != null && favoriteIds.size() != 0) {
+              if(favoriteIds != null) {
                   for (MovieInfo movieInfo : mDataset) {
                       movieInfo.is_favorite = favoriteIds.contains(movieInfo.id);
                       if(movieDetailsFragment != null){

@@ -3,9 +3,6 @@ package com.phaseshiftlab.phaseshiftermovietitles.first.parcels;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by phaseshiftlab on 10/5/2015.
- */
 public class MovieRelatedVideos implements Parcelable {
     public String id;
     public String iso_6391_1;
